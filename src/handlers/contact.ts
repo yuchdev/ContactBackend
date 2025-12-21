@@ -1,4 +1,4 @@
-import type { Env, ContactFormData, SubmissionRecord } from '../types';
+import type { Env, SubmissionRecord } from '../types';
 import { parseConfig } from '../config';
 import { validateContactForm, checkHoneypot, validateSecret, createDedupeKey, hashIP } from '../utils/validation';
 import { generateHash, generateId } from '../utils/hashing';

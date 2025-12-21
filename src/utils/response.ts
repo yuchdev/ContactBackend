@@ -1,5 +1,3 @@
-import type { PreparedResponse } from '../types';
-
 /**
  * Prepared response templates
  */
