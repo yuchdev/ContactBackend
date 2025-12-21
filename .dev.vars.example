@@ -1,20 +1,21 @@
-# Shared secret for validating contact form submissions
-SHARED_SECRET=your-secret-key-here
+# Required secrets
+CONTACT_SECRET=your-secret-key-here
 
-# GitHub configuration for issue creation
+# GitHub configuration (required)
 GITHUB_TOKEN=ghp_your_personal_access_token
-GITHUB_REPO=owner/repo
+GITHUB_OWNER=yuchdev
+GITHUB_REPO=ContactBackend
 
-# Telegram configuration for notifications
+# Telegram configuration (optional, for fallback notifications)
 TELEGRAM_BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
 TELEGRAM_CHAT_ID=-1001234567890
 
-# CORS allowlist (comma-separated origins)
-CORS_ALLOWLIST=https://example.com,https://www.example.com
+# Required configuration
+ALLOWED_ORIGINS=https://example.com,https://www.example.com
 
-# Maximum request body size in bytes (default: 1MB)
-MAX_BODY_SIZE=1048576
-
-# Rate limiting configuration
-RATE_LIMIT_MAX=10
-RATE_LIMIT_WINDOW=3600
+# Optional configuration (defaults shown)
+# USE_D1=true
+# DEDUPE_TTL_SECONDS=86400
+# RATE_LIMIT_PER_MINUTE=10
+# MAX_BODY_BYTES=8192
+# MODERATION_MODE=heuristic

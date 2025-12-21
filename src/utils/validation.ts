@@ -1,4 +1,5 @@
 import type { ContactFormData } from '../types';
+import { generateHash } from './hashing';
 
 /**
  * Validate contact form data structure and required fields
@@ -12,38 +13,44 @@ export function validateContactForm(data: unknown): data is ContactFormData {
 
   // Required fields
   if (
+    typeof form.secret !== 'string' ||
     typeof form.name !== 'string' ||
-    typeof form.email !== 'string' ||
-    typeof form.message !== 'string' ||
-    typeof form.secret !== 'string'
+    typeof form.subject !== 'string' ||
+    typeof form.message !== 'string'
   ) {
     return false;
   }
 
-  // Basic validation rules
-  if (form.name.trim().length === 0 || form.name.length > 100) {
+  // Validation rules per spec
+  // name: 1-80 chars
+  if (form.name.trim().length < 1 || form.name.length > 80) {
     return false;
   }
 
-  if (!isValidEmail(form.email)) {
+  // subject: 1-120 chars
+  if (form.subject.trim().length < 1 || form.subject.length > 120) {
     return false;
   }
 
-  if (form.message.trim().length === 0 || form.message.length > 5000) {
+  // message: 1-5000 chars
+  if (form.message.trim().length < 1 || form.message.length > 5000) {
     return false;
   }
 
-  // Optional subject field
-  if (form.subject !== undefined && typeof form.subject !== 'string') {
-    return false;
+  // email: optional, but if present must be valid
+  if (form.email !== undefined) {
+    if (typeof form.email !== 'string' || !isValidEmail(form.email)) {
+      return false;
+    }
   }
 
-  if (form.subject && form.subject.length > 200) {
-    return false;
-  }
-
-  // Honeypot field should be string if present
+  // website: honeypot field, should be string if present
   if (form.website !== undefined && typeof form.website !== 'string') {
+    return false;
+  }
+
+  // ts: optional timestamp, must be number if present
+  if (form.ts !== undefined && typeof form.ts !== 'number') {
     return false;
   }
 
@@ -73,19 +80,25 @@ export function validateSecret(provided: string, expected: string): boolean {
 }
 
 /**
- * Generate a hash for deduplication
+ * Create deduplication key from contact form data
+ * Normalized to handle whitespace and case variations
  */
-export async function generateHash(data: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+export function createDedupeKey(data: ContactFormData): string {
+  // Normalize: trim, lowercase, collapse whitespace
+  const normalizedEmail = (data.email || '').trim().toLowerCase();
+  const normalizedSubject = data.subject.trim().toLowerCase().replace(/\s+/g, ' ');
+  const normalizedMessage = data.message.trim().toLowerCase().replace(/\s+/g, ' ');
+  
+  // Add day bucket for time-based deduplication
+  const dayBucket = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+  
+  return `${normalizedEmail}|${normalizedSubject}|${normalizedMessage}|${dayBucket}`;
 }
 
 /**
- * Create deduplication key from contact form data
+ * Hash IP address with salt for privacy
  */
-export function createDedupeKey(data: ContactFormData): string {
-  return `${data.email}:${data.message.substring(0, 100)}`;
+export async function hashIP(ip: string, salt: string): Promise<string> {
+  const data = `${ip}:${salt}`;
+  return generateHash(data);
 }

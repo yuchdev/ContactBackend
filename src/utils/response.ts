@@ -3,17 +3,18 @@ import type { PreparedResponse } from '../types';
 /**
  * Prepared response templates
  */
-export const responses: PreparedResponse = {
-  success: {
+export const responses = {
+  ok: {
+    status: 'ok',
     message: 'Thank you for your message. We will get back to you soon!',
-    status: 200,
   },
-  error: {
-    validation: 'Invalid request data. Please check your input.',
-    unauthorized: 'Unauthorized request.',
-    rateLimit: 'Too many requests. Please try again later.',
-    moderation: 'Message rejected by moderation.',
-    internal: 'An error occurred. Please try again later.',
+  queued: {
+    status: 'queued',
+    message: 'Your message has been queued for processing.',
+  },
+  rejected: {
+    status: 'rejected',
+    message: 'Unable to process this request.',
   },
 };
 
@@ -43,24 +44,27 @@ export function jsonResponse(
 }
 
 /**
- * Create error response
+ * Create rejected response (400 or 403)
  */
-export function errorResponse(
-  message: string,
-  status = 400,
+export function rejectedResponse(
+  statusCode = 400,
   corsOrigin?: string
 ): Response {
-  return jsonResponse({ error: message }, status, corsOrigin);
+  return jsonResponse(responses.rejected, statusCode, corsOrigin);
 }
 
 /**
- * Create success response
+ * Create ok response (200)
  */
-export function successResponse(
-  message: string,
-  corsOrigin?: string
-): Response {
-  return jsonResponse({ message }, 200, corsOrigin);
+export function okResponse(corsOrigin?: string): Response {
+  return jsonResponse(responses.ok, 200, corsOrigin);
+}
+
+/**
+ * Create queued response (202)
+ */
+export function queuedResponse(corsOrigin?: string): Response {
+  return jsonResponse(responses.queued, 202, corsOrigin);
 }
 
 /**

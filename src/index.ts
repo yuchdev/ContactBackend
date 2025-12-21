@@ -1,6 +1,6 @@
 import type { Env } from './types';
 import { getAllowedOrigin } from './utils/cors';
-import { handleCorsPreFlight, errorResponse } from './utils/response';
+import { handleCorsPreFlight, rejectedResponse } from './utils/response';
 import { handleContactSubmission } from './handlers/contact';
 
 /**
@@ -11,7 +11,7 @@ export default {
     const url = new URL(request.url);
 
     // CORS handling
-    const corsOrigin = getAllowedOrigin(request, env.CORS_ALLOWLIST);
+    const corsOrigin = getAllowedOrigin(request, env.ALLOWED_ORIGINS || '');
 
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
@@ -25,7 +25,7 @@ export default {
     if (url.pathname === '/api/contact' && request.method === 'POST') {
       // Check CORS
       if (!corsOrigin) {
-        return errorResponse('Origin not allowed', 403);
+        return rejectedResponse(403);
       }
       return handleContactSubmission(request, env, corsOrigin);
     }
@@ -38,6 +38,6 @@ export default {
     }
 
     // 404 for other routes
-    return errorResponse('Not found', 404, corsOrigin);
+    return rejectedResponse(404, corsOrigin);
   },
 };
