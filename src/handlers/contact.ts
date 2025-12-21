@@ -1,4 +1,4 @@
-import type { Env, ContactFormData } from '../types';
+import type { Env } from '../types';
 import { validateContactForm, checkHoneypot, validateSecret } from '../utils/validation';
 import { responses, errorResponse, successResponse } from '../utils/response';
 import { getClientIP, checkRateLimit } from '../utils/rateLimit';

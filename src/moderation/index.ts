@@ -4,7 +4,9 @@ import type { ContactFormData, ModerationResult, ModerationStrategy } from '../t
  * Stub moderation - allows all messages
  */
 export class StubModeration implements ModerationStrategy {
-  async moderate(_data: ContactFormData): Promise<ModerationResult> {
+  async moderate(data: ContactFormData): Promise<ModerationResult> {
+    // Stub moderation allows all messages
+    void data; // Mark as intentionally unused
     return {
       allowed: true,
       confidence: 1.0,
