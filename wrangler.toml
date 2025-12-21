@@ -1,0 +1,31 @@
+name = "contact-backend"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Secrets (configure via: wrangler secret put <NAME>)
+# - SHARED_SECRET: Secret required in request body
+# - GITHUB_TOKEN: Personal Access Token for creating issues
+# - GITHUB_REPO: Repository in format "owner/repo"
+# - TELEGRAM_BOT_TOKEN: Bot token for Telegram notifications
+# - TELEGRAM_CHAT_ID: Chat ID for Telegram messages
+
+# Optional KV namespace for deduplication and rate limiting
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "your-kv-namespace-id"
+
+# Optional D1 database for persistence
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "contact-backend-db"
+# database_id = "your-database-id"
+
+[vars]
+# CORS allowlist (comma-separated origins)
+CORS_ALLOWLIST = "https://example.com,https://www.example.com"
+# Maximum request body size in bytes (1MB default)
+MAX_BODY_SIZE = "1048576"
+# Rate limit: max requests per IP per hour
+RATE_LIMIT_MAX = "10"
+# Rate limit window in seconds
+RATE_LIMIT_WINDOW = "3600"

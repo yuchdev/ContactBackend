@@ -1,0 +1,32 @@
+{
+  "name": "contact-backend",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers backend for contact form processing",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "contact-form",
+    "typescript"
+  ],
+  "author": "Yurii Cherkasov",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.1",
+    "wrangler": "^3.87.0"
+  },
+  "dependencies": {}
+}
