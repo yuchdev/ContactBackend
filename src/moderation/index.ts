@@ -34,7 +34,6 @@ export class HeuristicModeration implements ModerationStrategy {
   ];
 
   private suspiciousPatterns = [
-    /\b(?:https?:\/\/[^\s]+){3,}/gi, // Multiple URLs
     /([A-Z\s]{20,})/g, // Excessive caps
     /(.)\1{10,}/g, // Character repetition
   ];

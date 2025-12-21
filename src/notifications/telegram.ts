@@ -58,5 +58,8 @@ _Submitted at: ${new Date().toISOString()}_
  * Escape special characters for Telegram Markdown
  */
 function escapeMarkdown(text: string): string {
-  return text.replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+  // First escape backslashes, then escape other special characters
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
 }
