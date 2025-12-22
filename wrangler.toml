@@ -1,6 +1,6 @@
 name = "contact-backend"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-12-22"
 
 # Secrets (configure via: wrangler secret put <NAME>)
 # - CONTACT_SECRET: Secret required in request body
@@ -10,18 +10,18 @@ compatibility_date = "2024-01-01"
 # - TELEGRAM_BOT_TOKEN: Bot token for Telegram notifications (optional)
 # - TELEGRAM_CHAT_ID: Chat ID for Telegram messages (optional)
 
-# Optional KV namespace for rate limiting (recommended)
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "ff5439c851a144658f0c638eacaa8419"
 
-# Optional D1 database for persistence (recommended)
-# [[d1_databases]]
+# D1 database for persistence
+[[d1_databases]]
 binding = "DB"
 database_name = "contact_backend"
+database_id = "cb6d52a2-8fd8-4bef-b999-e9e12233f58e"
 
 [vars]
-# Allowed origins (comma-separated)
+# Origins are comma-separated
 ALLOWED_ORIGINS = "https://yuchdev.github.io"
 
 # Optional configuration (with defaults)
