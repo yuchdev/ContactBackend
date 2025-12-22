@@ -4,7 +4,7 @@ import { sendTelegramNotification } from './telegram';
 
 /**
  * Send notifications via available channels
- * GitHub is primary, Telegram is fallback
+ * GitHub is primary, Telegram is the fallback
  * Returns notification result with status information
  */
 export async function sendNotifications(
