@@ -1,32 +1,31 @@
 {
-  "name": "contact-backend",
-  "version": "1.0.0",
-  "description": "Cloudflare Workers backend for contact form processing",
-  "main": "src/index.ts",
+  "name": "contact-backend-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker backend for contact form: security checks, moderation hook, GitHub Issues + Telegram fallback.",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier . --write",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint src --ext .ts",
-    "typecheck": "tsc --noEmit"
+    "test:integration": "vitest run -c vitest.integration.config.ts",
+    "db:migrate:local": "wrangler d1 migrations apply contact_backend --local",
+    "db:migrate:remote": "wrangler d1 migrations apply contact_backend"
   },
-  "keywords": [
-    "cloudflare",
-    "workers",
-    "contact-form",
-    "typescript"
-  ],
-  "author": "Yurii Cherkasov",
-  "license": "MIT",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241218.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "typescript": "^5.3.3",
-    "vitest": "^1.1.1",
-    "wrangler": "^3.87.0"
-  },
-  "dependencies": {}
+    "@cloudflare/vitest-pool-workers": "^0.11.1",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "miniflare": "^3.20241200.0",
+    "prettier": "^3.3.3",
+    "tslib": "^2.7.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.56.0"
+  }
 }
