@@ -1,104 +1,31 @@
-import type { ContactFormData, ModerationResult, ModerationStrategy } from '../types';
+import type { ContactFormData, ModerationResult } from '../types';
+import { moderateHeuristic } from './heuristic';
+import { moderateAI } from './ai_stub';
 
 /**
- * Stub moderation - allows all messages
+ * Moderation strategy interface
  */
-export class StubModeration implements ModerationStrategy {
-  async moderate(data: ContactFormData): Promise<ModerationResult> {
-    // Stub moderation allows all messages
-    void data; // Mark as intentionally unused
-    return {
-      allowed: true,
-      confidence: 1.0,
-    };
-  }
+export interface ModerationStrategy {
+  moderate(data: ContactFormData): Promise<ModerationResult>;
 }
 
 /**
- * Heuristic moderation - basic spam detection
+ * Get moderation function based on mode
  */
-export class HeuristicModeration implements ModerationStrategy {
-  private spamKeywords = [
-    'viagra',
-    'cialis',
-    'casino',
-    'lottery',
-    'crypto',
-    'bitcoin',
-    'investment opportunity',
-    'click here',
-    'buy now',
-    'limited offer',
-    'act now',
-    'congratulations',
-  ];
-
-  private suspiciousPatterns = [
-    /([A-Z\s]{20,})/g, // Excessive caps
-    /(.)\1{10,}/g, // Character repetition
-  ];
-
-  async moderate(data: ContactFormData): Promise<ModerationResult> {
-    const content = `${data.name} ${data.email} ${data.message} ${data.subject || ''}`.toLowerCase();
-
-    // Check for spam keywords
-    for (const keyword of this.spamKeywords) {
-      if (content.includes(keyword.toLowerCase())) {
-        return {
-          allowed: false,
-          reason: 'Spam keyword detected',
-          confidence: 0.8,
-        };
-      }
-    }
-
-    // Check for suspicious patterns
-    const fullContent = `${data.name} ${data.message} ${data.subject || ''}`;
-    for (const pattern of this.suspiciousPatterns) {
-      if (pattern.test(fullContent)) {
-        return {
-          allowed: false,
-          reason: 'Suspicious pattern detected',
-          confidence: 0.7,
-        };
-      }
-    }
-
-    // Check message length ratio (very short messages might be spam)
-    if (data.message.length < 10) {
-      return {
-        allowed: false,
-        reason: 'Message too short',
-        confidence: 0.6,
-      };
-    }
-
-    // Check for excessive links
-    const urlCount = (data.message.match(/https?:\/\//gi) || []).length;
-    if (urlCount > 2) {
-      return {
-        allowed: false,
-        reason: 'Too many links',
-        confidence: 0.75,
-      };
-    }
-
-    return {
-      allowed: true,
-      confidence: 0.9,
-    };
-  }
-}
-
-/**
- * Get moderation strategy based on environment
- */
-export function getModerationStrategy(type: 'stub' | 'heuristic' = 'heuristic'): ModerationStrategy {
-  switch (type) {
-    case 'stub':
-      return new StubModeration();
+export async function moderate(
+  data: ContactFormData,
+  mode: 'heuristic' | 'ai' | 'off' = 'heuristic'
+): Promise<ModerationResult> {
+  switch (mode) {
+    case 'off':
+      return { verdict: 'ALLOW' };
+    case 'ai':
+      return moderateAI(data);
     case 'heuristic':
     default:
-      return new HeuristicModeration();
+      return moderateHeuristic(data);
   }
 }
+
+export { moderateHeuristic } from './heuristic';
+export { moderateAI } from './ai_stub';

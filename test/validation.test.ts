@@ -12,10 +12,11 @@ describe('Validation Utils', () => {
   describe('validateContactForm', () => {
     it('should validate correct form data', () => {
       const data = {
+        secret: 'test-secret',
         name: 'John Doe',
         email: 'john@example.com',
+        subject: 'Test Subject',
         message: 'Hello, this is a test message',
-        secret: 'test-secret',
       };
       expect(validateContactForm(data)).toBe(true);
     });
@@ -24,7 +25,7 @@ describe('Validation Utils', () => {
       const data = {
         name: 'John Doe',
         email: 'john@example.com',
-        // missing message
+        // missing message and subject
         secret: 'test-secret',
       };
       expect(validateContactForm(data)).toBe(false);
@@ -32,52 +33,55 @@ describe('Validation Utils', () => {
 
     it('should reject form with invalid email', () => {
       const data = {
+        secret: 'test-secret',
         name: 'John Doe',
         email: 'invalid-email',
+        subject: 'Test',
         message: 'Hello',
-        secret: 'test-secret',
       };
       expect(validateContactForm(data)).toBe(false);
     });
 
     it('should reject form with empty name', () => {
       const data = {
+        secret: 'test-secret',
         name: '   ',
         email: 'john@example.com',
+        subject: 'Test',
         message: 'Hello',
-        secret: 'test-secret',
       };
       expect(validateContactForm(data)).toBe(false);
     });
 
     it('should reject form with too long name', () => {
       const data = {
-        name: 'A'.repeat(101),
-        email: 'john@example.com',
-        message: 'Hello',
         secret: 'test-secret',
+        name: 'A'.repeat(81),
+        email: 'john@example.com',
+        subject: 'Test',
+        message: 'Hello',
       };
       expect(validateContactForm(data)).toBe(false);
     });
 
     it('should accept optional subject field', () => {
       const data = {
+        secret: 'test-secret',
         name: 'John Doe',
         email: 'john@example.com',
-        message: 'Hello',
         subject: 'Test Subject',
-        secret: 'test-secret',
+        message: 'Hello',
       };
       expect(validateContactForm(data)).toBe(true);
     });
 
     it('should reject subject that is too long', () => {
       const data = {
+        secret: 'test-secret',
         name: 'John Doe',
         email: 'john@example.com',
+        subject: 'A'.repeat(121),
         message: 'Hello',
-        subject: 'A'.repeat(201),
-        secret: 'test-secret',
       };
       expect(validateContactForm(data)).toBe(false);
     });
@@ -101,10 +105,11 @@ describe('Validation Utils', () => {
   describe('checkHoneypot', () => {
     it('should pass when honeypot is empty', () => {
       const data = {
+        secret: 'secret',
         name: 'John',
         email: 'john@example.com',
+        subject: 'Test',
         message: 'Hello',
-        secret: 'secret',
         website: '',
       } as ContactFormData;
       expect(checkHoneypot(data)).toBe(true);
@@ -112,20 +117,22 @@ describe('Validation Utils', () => {
 
     it('should pass when honeypot is undefined', () => {
       const data = {
+        secret: 'secret',
         name: 'John',
         email: 'john@example.com',
+        subject: 'Test',
         message: 'Hello',
-        secret: 'secret',
       } as ContactFormData;
       expect(checkHoneypot(data)).toBe(true);
     });
 
     it('should fail when honeypot is filled', () => {
       const data = {
+        secret: 'secret',
         name: 'John',
         email: 'john@example.com',
+        subject: 'Test',
         message: 'Hello',
-        secret: 'secret',
         website: 'http://spam.com',
       } as ContactFormData;
       expect(checkHoneypot(data)).toBe(false);
@@ -145,10 +152,11 @@ describe('Validation Utils', () => {
   describe('createDedupeKey', () => {
     it('should create consistent dedupe key', () => {
       const data = {
+        secret: 'secret',
         name: 'John',
         email: 'john@example.com',
+        subject: 'Test',
         message: 'Hello World',
-        secret: 'secret',
       } as ContactFormData;
       const key1 = createDedupeKey(data);
       const key2 = createDedupeKey(data);

@@ -8,7 +8,8 @@ export function getClientIP(request: Request): string {
 }
 
 /**
- * Check rate limit for an IP address
+ * Check rate limit for an IP address (legacy - now handled by storage)
+ * This is kept for backward compatibility but not used in new implementation
  */
 export async function checkRateLimit(
   ip: string,
@@ -19,8 +20,8 @@ export async function checkRateLimit(
     return { limited: false, remaining: -1, resetAt: 0 };
   }
 
-  const maxRequests = parseInt(env.RATE_LIMIT_MAX || '10', 10);
-  const windowSeconds = parseInt(env.RATE_LIMIT_WINDOW || '3600', 10);
+  const maxRequests = parseInt(env.RATE_LIMIT_PER_MINUTE || '10', 10);
+  const windowSeconds = 60; // 1 minute window
   const now = Date.now();
   const windowStart = now - windowSeconds * 1000;
   

@@ -1,5 +1,6 @@
 import type { Env, ContactFormData } from '../types';
-import { generateHash, createDedupeKey } from './validation';
+import { generateHash } from './hashing';
+import { createDedupeKey } from './validation';
 
 /**
  * Check if a submission is a duplicate

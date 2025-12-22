@@ -2,30 +2,43 @@ import type { ContactFormData, Env } from '../types';
 
 /**
  * Send Telegram notification
+ * Returns true if successful, false otherwise
  */
 export async function sendTelegramNotification(
   data: ContactFormData,
-  env: Env
+  env: Env,
+  dedupeHash?: string
 ): Promise<boolean> {
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.warn('Telegram configuration not available');
     return false;
   }
 
+  // Truncate message to Telegram limit (3500 chars to be safe)
+  const truncatedMessage = data.message.length > 3500 
+    ? data.message.substring(0, 3497) + '...'
+    : data.message;
+
   const message = `
 🔔 *New Contact Form Submission*
 
 *From:* ${escapeMarkdown(data.name)}
-*Email:* ${escapeMarkdown(data.email)}
-${data.subject ? `*Subject:* ${escapeMarkdown(data.subject)}` : ''}
+*Email:* ${data.email ? escapeMarkdown(data.email) : 'Not provided'}
+*Subject:* ${escapeMarkdown(data.subject)}
 
 *Message:*
-${escapeMarkdown(data.message)}
+${escapeMarkdown(truncatedMessage)}
 
-_Submitted at: ${new Date().toISOString()}_
+_Metadata:_
+_Timestamp: ${new Date().toISOString()}_
+${dedupeHash ? `_Dedupe Hash: ${dedupeHash.substring(0, 16)}..._` : ''}
   `.trim();
 
   try {
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch(
       `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
       {
@@ -38,8 +51,11 @@ _Submitted at: ${new Date().toISOString()}_
           text: message,
           parse_mode: 'Markdown',
         }),
+        signal: controller.signal,
       }
     );
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const error = await response.text();
@@ -49,7 +65,11 @@ _Submitted at: ${new Date().toISOString()}_
 
     return true;
   } catch (error) {
-    console.error('Failed to send Telegram notification:', error);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Telegram API timeout');
+    } else {
+      console.error('Failed to send Telegram notification:', error);
+    }
     return false;
   }
 }
