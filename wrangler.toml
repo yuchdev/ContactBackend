@@ -11,23 +11,22 @@ compatibility_date = "2024-01-01"
 # - TELEGRAM_CHAT_ID: Chat ID for Telegram messages (optional)
 
 # Optional KV namespace for rate limiting (recommended)
-# [[kv_namespaces]]
-# binding = "KV"
-# id = "your-kv-namespace-id"
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "ff5439c851a144658f0c638eacaa8419"
 
 # Optional D1 database for persistence (recommended)
 # [[d1_databases]]
-# binding = "DB"
-# database_name = "contact-backend-db"
-# database_id = "your-database-id"
+binding = "DB"
+database_name = "contact_backend"
 
 [vars]
 # Allowed origins (comma-separated)
-ALLOWED_ORIGINS = "https://example.com,https://www.example.com"
+ALLOWED_ORIGINS = "https://yuchdev.github.io"
 
 # Optional configuration (with defaults)
-# USE_D1 = "true"
-# DEDUPE_TTL_SECONDS = "86400"
-# RATE_LIMIT_PER_MINUTE = "10"
-# MAX_BODY_BYTES = "8192"
-# MODERATION_MODE = "heuristic"
+USE_D1 = "true"
+DEDUPE_TTL_SECONDS = "86400"
+RATE_LIMIT_PER_MINUTE = "10"
+MAX_BODY_BYTES = "8192"
+MODERATION_MODE = "heuristic"
