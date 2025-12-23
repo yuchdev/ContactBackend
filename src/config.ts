@@ -23,20 +23,15 @@ export interface Config {
  */
 export function parseConfig(env: Env): Config {
   // Validate mandatory fields
-  if (!env.CONTACT_SECRET) {
-    throw new Error('CONTACT_SECRET is required');
-  }
-  if (!env.GITHUB_TOKEN) {
-    throw new Error('GITHUB_TOKEN is required');
-  }
-  if (!env.GITHUB_OWNER) {
-    throw new Error('GITHUB_OWNER is required');
-  }
-  if (!env.GITHUB_REPO) {
-    throw new Error('GITHUB_REPO is required');
-  }
-  if (!env.ALLOWED_ORIGINS) {
-    throw new Error('ALLOWED_ORIGINS is required');
+  const missingFields: string[] = [];
+  if (!env.CONTACT_SECRET) missingFields.push('CONTACT_SECRET');
+  if (!env.GITHUB_TOKEN) missingFields.push('GITHUB_TOKEN');
+  if (!env.GITHUB_OWNER) missingFields.push('GITHUB_OWNER');
+  if (!env.GITHUB_REPO) missingFields.push('GITHUB_REPO');
+  if (!env.ALLOWED_ORIGINS) missingFields.push('ALLOWED_ORIGINS');
+
+  if (missingFields.length > 0) {
+    throw new Error(`Missing mandatory environment variables: ${missingFields.join(', ')}`);
   }
 
   // Parse allowed origins

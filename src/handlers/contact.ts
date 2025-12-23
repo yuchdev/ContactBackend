@@ -34,14 +34,24 @@ export async function handleContactSubmission(
     // 2. Check Content-Type
     const contentType = request.headers.get('Content-Type');
     if (!contentType || !contentType.includes('application/json')) {
-      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_CONTENT_TYPE' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 400, 
+        reject_code: 'INVALID_CONTENT_TYPE',
+        reason: 'Content-Type must be application/json'
+      });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 3. Check body size limit
     const contentLength = request.headers.get('Content-Length');
     if (contentLength && parseInt(contentLength, 10) > config.maxBodyBytes) {
-      logInfo('submission_rejected', { ...logFields, status: 413, reject_code: 'BODY_TOO_LARGE' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 413, 
+        reject_code: 'BODY_TOO_LARGE',
+        reason: `Body exceeds limit of ${config.maxBodyBytes} bytes`
+      });
       return rejectedResponse(413, corsOrigin);
     }
 
@@ -50,24 +60,44 @@ export async function handleContactSubmission(
     try {
       const text = await request.text();
       if (text.length > config.maxBodyBytes) {
-        logInfo('submission_rejected', { ...logFields, status: 413, reject_code: 'BODY_TOO_LARGE' });
+        logInfo('submission_rejected', { 
+          ...logFields, 
+          status: 413, 
+          reject_code: 'BODY_TOO_LARGE',
+          reason: `Body exceeds limit of ${config.maxBodyBytes} bytes`
+        });
         return rejectedResponse(413, corsOrigin);
       }
       data = JSON.parse(text);
     } catch {
-      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_JSON' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 400, 
+        reject_code: 'INVALID_JSON',
+        reason: 'Malformed JSON payload'
+      });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 5. Validate fields (schema)
     if (!validateContactForm(data)) {
-      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_SCHEMA' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 400, 
+        reject_code: 'INVALID_SCHEMA',
+        reason: 'Missing or invalid required fields (name, email, subject, message, secret)'
+      });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 6. Validate secret
     if (!validateSecret(data.secret, config.contactSecret)) {
-      logInfo('submission_rejected', { ...logFields, status: 403, reject_code: 'INVALID_SECRET' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 403, 
+        reject_code: 'INVALID_SECRET',
+        reason: 'Contact secret is invalid or missing'
+      });
       return rejectedResponse(403, corsOrigin);
     }
 
@@ -90,7 +120,12 @@ export async function handleContactSubmission(
     const rateLimitWindow = 60; // 1 minute window
     const count = await storage.getRateLimitCount(ipHash, rateLimitWindow);
     if (count >= config.rateLimitPerMinute) {
-      logInfo('submission_rejected', { ...logFields, status: 429, reject_code: 'RATE_LIMIT_EXCEEDED' });
+      logInfo('submission_rejected', { 
+        ...logFields, 
+        status: 429, 
+        reject_code: 'RATE_LIMIT_EXCEEDED',
+        reason: `Rate limit of ${config.rateLimitPerMinute} submissions per minute exceeded`
+      });
       return rejectedResponse(429, corsOrigin);
     }
 
@@ -173,7 +208,11 @@ export async function handleContactSubmission(
       return queuedResponse(corsOrigin);
     }
   } catch (error) {
-    logError('submission_error', { ...logFields, status: 500, error });
+    try {
+      logError('submission_error', { ...logFields, status: 500, error });
+    } catch (logErr) {
+      console.error('Failed to log submission error:', logErr);
+    }
     return rejectedResponse(500, corsOrigin);
   }
 }

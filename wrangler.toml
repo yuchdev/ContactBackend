@@ -2,14 +2,6 @@ name = "contact-backend"
 main = "src/index.ts"
 compatibility_date = "2025-12-22"
 
-# Secrets (configure via: wrangler secret put <NAME>)
-# - CONTACT_SECRET: Secret required in request body
-# - GITHUB_TOKEN: Personal Access Token for creating issues
-# - GITHUB_OWNER: GitHub repository owner
-# - GITHUB_REPO: GitHub repository name
-# - TELEGRAM_BOT_TOKEN: Bot token for Telegram notifications (optional)
-# - TELEGRAM_CHAT_ID: Chat ID for Telegram messages (optional)
-
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "ff5439c851a144658f0c638eacaa8419"
@@ -20,8 +12,23 @@ binding = "DB"
 database_name = "contact_backend"
 database_id = "cb6d52a2-8fd8-4bef-b999-e9e12233f58e"
 
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = false
+persist = true
+head_sampling_rate = 1
+
 [vars]
-ALLOWED_ORIGINS = "https://yuchdev.github.io,http://localhost:3000,http://127.0.0.1:8787"
+ALLOWED_ORIGINS = "https://yuchdev.github.io"
 USE_D1 = "true"
 DEDUPE_TTL_SECONDS = "86400"
 MAX_BODY_BYTES = "8192"
@@ -30,3 +37,9 @@ GITHUB_REPO = "ContactBackend"
 TELEGRAM_CHAT_ID = "7796749"
 RATE_LIMIT_PER_MINUTE = "10"
 MODERATION_MODE = "heuristic"
+
+[env.dev]
+name = "contact-backend-dev"
+
+[env.dev.vars]
+ALLOWED_ORIGINS = "https://yuchdev.github.io,http://localhost:3000,http://127.0.0.1:3000"

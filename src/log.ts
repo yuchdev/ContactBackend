@@ -36,7 +36,7 @@ function formatLog(event: string, fields: LogFields) {
     extra.email = obfuscateEmail(extra.email);
   }
 
-  const logEntry = {
+  const logEntry: any = {
     timestamp: new Date().toISOString(),
     event,
     request_id,
@@ -51,7 +51,18 @@ function formatLog(event: string, fields: LogFields) {
     ...extra
   };
 
-  return JSON.stringify(logEntry);
+  try {
+    return JSON.stringify(logEntry);
+  } catch (err) {
+    // Fallback for circular references or other stringification issues
+    return JSON.stringify({
+      timestamp: new Date().toISOString(),
+      event: 'log_error',
+      message: 'Failed to stringify log entry',
+      original_event: event,
+      status: status
+    });
+  }
 }
 
 export function logInfo(event: string, fields: LogFields) {

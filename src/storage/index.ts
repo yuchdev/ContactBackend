@@ -3,6 +3,7 @@ import type { StorageBackend } from './interface';
 import { D1Storage } from './d1';
 import { KVStorage } from './kv';
 import { MemoryStorage } from './memory';
+import { logInfo } from '../log';
 
 export type { StorageBackend } from './interface';
 export { D1Storage } from './d1';
@@ -28,5 +29,6 @@ export function getStorageBackend(env: Env): StorageBackend {
   }
 
   // Use memory storage for testing/development
+  logInfo('storage_fallback', { reason: 'No D1 or KV binding found, using MemoryStorage' });
   return new MemoryStorage();
 }

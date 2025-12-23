@@ -2,7 +2,7 @@ import type { Env } from './types';
 import { getAllowedOrigin } from './utils/cors';
 import { handleCorsPreFlight, rejectedResponse } from './utils/response';
 import { handleContactSubmission } from './handlers/contact';
-import { logInfo } from './log';
+import { logInfo, logError } from './log';
 
 /**
  * Main Worker entry point
@@ -17,32 +17,61 @@ export default {
 
         let response: Response;
 
-        // Handle CORS preflight
-        if (request.method === 'OPTIONS') {
-            if (corsOrigin) {
-                response = handleCorsPreFlight(corsOrigin);
-            } else {
-                response = new Response(null, { status: 403 });
+        try {
+            // Handle CORS preflight
+            if (request.method === 'OPTIONS') {
+                if (corsOrigin) {
+                    response = handleCorsPreFlight(corsOrigin);
+                } else {
+                    const origin = request.headers.get('Origin');
+                    logInfo('cors_rejected', {
+                        request_id: requestId,
+                        path: url.pathname,
+                        method: request.method,
+                        origin: origin,
+                        status: 403,
+                        reason: 'CORS origin not allowed during preflight'
+                    });
+                    response = new Response(null, { status: 403 });
+                }
             }
-        }
-        // Route handling
-        else if (url.pathname === '/api/contact' && request.method === 'POST') {
-            // Check CORS
-            if (!corsOrigin) {
-                response = rejectedResponse(403);
-            } else {
-                response = await handleContactSubmission(request, env, corsOrigin);
+            // Route handling
+            else if (url.pathname === '/api/contact' && request.method === 'POST') {
+                // Check CORS
+                if (!corsOrigin) {
+                    const origin = request.headers.get('Origin');
+                    logInfo('cors_rejected', {
+                        request_id: requestId,
+                        path: url.pathname,
+                        method: request.method,
+                        origin: origin,
+                        status: 403,
+                        reason: 'CORS origin not allowed'
+                    });
+                    response = rejectedResponse(403);
+                } else {
+                    response = await handleContactSubmission(request, env, corsOrigin);
+                }
             }
-        }
-        // Health check endpoint
-        else if (url.pathname === '/health' && request.method === 'GET') {
-            response = new Response(JSON.stringify({ status: 'ok' }), {
-                headers: { 'Content-Type': 'application/json' },
+            // Health check endpoint
+            else if (url.pathname === '/health' && request.method === 'GET') {
+                response = new Response(JSON.stringify({ status: 'ok' }), {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+            // 404 for other routes
+            else {
+                response = rejectedResponse(404, corsOrigin);
+            }
+        } catch (error) {
+            logError('unhandled_exception', {
+                request_id: requestId,
+                path: url.pathname,
+                method: request.method,
+                origin: corsOrigin,
+                error
             });
-        }
-        // 404 for other routes
-        else {
-            response = rejectedResponse(404, corsOrigin);
+            response = rejectedResponse(500, corsOrigin);
         }
 
         // Summary log
