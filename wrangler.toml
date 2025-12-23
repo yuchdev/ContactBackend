@@ -21,12 +21,12 @@ database_name = "contact_backend"
 database_id = "cb6d52a2-8fd8-4bef-b999-e9e12233f58e"
 
 [vars]
-# Origins are comma-separated
-ALLOWED_ORIGINS = "https://yuchdev.github.io"
-
-# Optional configuration (with defaults)
+ALLOWED_ORIGINS = "https://yuchdev.github.io,http://localhost:3000,http://127.0.0.1:8787"
 USE_D1 = "true"
 DEDUPE_TTL_SECONDS = "86400"
-RATE_LIMIT_PER_MINUTE = "10"
 MAX_BODY_BYTES = "8192"
+GITHUB_OWNER = "yuchdev"
+GITHUB_REPO = "ContactBackend"
+TELEGRAM_CHAT_ID = "7796749"
+RATE_LIMIT_PER_MINUTE = "10"
 MODERATION_MODE = "heuristic"

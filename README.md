@@ -19,6 +19,7 @@ A robust, production-ready Cloudflare Workers backend for handling contact form 
 - **Deduplication**: Prevents duplicate submissions within TTL window
 - **IP Hashing**: Privacy-preserving with salt
 - **Generic Error Messages**: Prevents security information leakage
+- **Structured Logging**: JSON-formatted logs for easy analysis
 
 ### Intelligent Moderation
 - **Pluggable System**: Switch between moderation strategies
@@ -37,12 +38,20 @@ A robust, production-ready Cloudflare Workers backend for handling contact form 
   - Auto-labeling with `contact` label
   - Includes metadata (timestamp, IP hash, dedupe hash)
   - Timeout protection (8 seconds)
+  - Failure logging for troubleshooting
 - **Telegram Bot** (Fallback): Sends notifications when GitHub fails
   - Markdown-formatted messages
   - Message truncation for Telegram limits
   - Timeout protection (8 seconds)
+  - Failure logging for troubleshooting
 - **Smart Fallback**: Automatically uses Telegram if GitHub unavailable
 - **Status Tracking**: Records delivery status for both channels
+
+### Observability
+- **Structured JSON Logs**: Every request generates a one-line summary log
+- **Detailed Events**: Key lifecycle events (moderation, deduplication, notification status) are logged
+- **Privacy First**: Secrets, full messages, and raw emails are never logged (emails are obfuscated)
+- **Cloudflare Integration**: Logs include `cf-ray` as `request_id` for easy correlation
 
 ### Response System
 - **200 OK**: GitHub notification succeeded
@@ -233,6 +242,7 @@ src/
 │   ├── index.ts          # Notification orchestration
 │   ├── github.ts         # GitHub issue creation
 │   └── telegram.ts       # Telegram messaging
+├── log.ts                # Structured logging implementation
 └── storage/
     ├── index.ts          # Storage backend selector
     ├── interface.ts      # Storage interface
@@ -435,6 +445,56 @@ _Metadata:_
 _Timestamp: 2024-01-01T00:00:00.000Z_
 _Dedupe Hash: abc123..._
 ```
+
+## 📊 Observability & Logs
+
+The backend uses structured JSON logging for all requests and key events.
+
+### Viewing Logs in Real-time
+
+To see logs as they happen, use the `wrangler tail` command:
+
+```bash
+wrangler tail --format json
+```
+
+Or for a more readable format:
+
+```bash
+wrangler tail
+```
+
+### Viewing Logs in Cloudflare Dashboard
+
+1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com).
+2. Navigate to **Workers & Pages**.
+3. Select your Worker (`contact-backend`).
+4. Click on the **Logs** tab.
+5. Click **Begin log stream** to see incoming requests.
+
+### Log Format
+
+Logs are output as a single-line JSON object:
+
+```json
+{
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "event": "submission_accepted",
+  "request_id": "8382c30089452b41",
+  "path": "/api/contact",
+  "method": "POST",
+  "origin": "https://example.com",
+  "ip_hash": "a1b2c3d4...",
+  "dedupe_hash": "e5f6g7h8...",
+  "moderation_verdict": "ALLOW",
+  "status": 200
+}
+```
+
+- **`request_id`**: Corresponds to the `CF-Ray` header.
+- **`ip_hash`**: SHA-256 hash of the client IP (salted with `CONTACT_SECRET`).
+- **`status`**: HTTP response status code.
+- **`reject_code`**: (Optional) Specific reason for rejection (e.g., `INVALID_SECRET`, `RATE_LIMIT_EXCEEDED`).
 
 ## 🧪 Testing
 

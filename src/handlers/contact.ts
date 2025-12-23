@@ -6,6 +6,7 @@ import { rejectedResponse, okResponse, queuedResponse } from '../utils/response'
 import { moderate } from '../moderation';
 import { sendNotifications } from '../notifications';
 import { getStorageBackend } from '../storage';
+import { logInfo, logError } from '../log';
 
 /**
  * Handle contact form submission
@@ -15,6 +16,15 @@ export async function handleContactSubmission(
   env: Env,
   corsOrigin?: string
 ): Promise<Response> {
+  const requestId = request.headers.get('cf-ray') || 'unknown';
+  const url = new URL(request.url);
+  const logFields = {
+    request_id: requestId,
+    path: url.pathname,
+    method: request.method,
+    origin: corsOrigin,
+  };
+
   try {
     // Parse configuration
     const config = parseConfig(env);
@@ -24,12 +34,14 @@ export async function handleContactSubmission(
     // 2. Check Content-Type
     const contentType = request.headers.get('Content-Type');
     if (!contentType || !contentType.includes('application/json')) {
+      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_CONTENT_TYPE' });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 3. Check body size limit
     const contentLength = request.headers.get('Content-Length');
     if (contentLength && parseInt(contentLength, 10) > config.maxBodyBytes) {
+      logInfo('submission_rejected', { ...logFields, status: 413, reject_code: 'BODY_TOO_LARGE' });
       return rejectedResponse(413, corsOrigin);
     }
 
@@ -38,25 +50,30 @@ export async function handleContactSubmission(
     try {
       const text = await request.text();
       if (text.length > config.maxBodyBytes) {
+        logInfo('submission_rejected', { ...logFields, status: 413, reject_code: 'BODY_TOO_LARGE' });
         return rejectedResponse(413, corsOrigin);
       }
       data = JSON.parse(text);
     } catch {
+      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_JSON' });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 5. Validate fields (schema)
     if (!validateContactForm(data)) {
+      logInfo('submission_rejected', { ...logFields, status: 400, reject_code: 'INVALID_SCHEMA' });
       return rejectedResponse(400, corsOrigin);
     }
 
     // 6. Validate secret
     if (!validateSecret(data.secret, config.contactSecret)) {
+      logInfo('submission_rejected', { ...logFields, status: 403, reject_code: 'INVALID_SECRET' });
       return rejectedResponse(403, corsOrigin);
     }
 
     // 7. Check honeypot
     if (!checkHoneypot(data)) {
+      logInfo('submission_honeypot', { ...logFields, status: 200 });
       // Silently accept (looks like success to bots)
       return okResponse(corsOrigin);
     }
@@ -64,6 +81,7 @@ export async function handleContactSubmission(
     // 8. Compute IP hash
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
     const ipHash = await hashIP(clientIP, config.contactSecret);
+    Object.assign(logFields, { ip_hash: ipHash });
 
     // 9. Get storage backend
     const storage = getStorageBackend(env);
@@ -72,24 +90,29 @@ export async function handleContactSubmission(
     const rateLimitWindow = 60; // 1 minute window
     const count = await storage.getRateLimitCount(ipHash, rateLimitWindow);
     if (count >= config.rateLimitPerMinute) {
+      logInfo('submission_rejected', { ...logFields, status: 429, reject_code: 'RATE_LIMIT_EXCEEDED' });
       return rejectedResponse(429, corsOrigin);
     }
 
     // 11. Compute dedupe hash
     const dedupeKey = createDedupeKey(data);
     const dedupeHash = await generateHash(dedupeKey);
+    Object.assign(logFields, { dedupe_hash: dedupeHash });
 
     // 12. Check for duplicates
     const isDuplicate = await storage.isDuplicate(dedupeHash, config.dedupeTtlSeconds);
     if (isDuplicate) {
+      logInfo('submission_duplicate', { ...logFields, status: 200 });
       // Return success but don't process (idempotent)
       return okResponse(corsOrigin);
     }
 
     // 13. Moderation
     const moderationResult = await moderate(data, config.moderationMode);
+    Object.assign(logFields, { moderation_verdict: moderationResult.verdict });
+
     if (moderationResult.verdict === 'BLOCK') {
-      console.log('Message blocked by moderation:', moderationResult.reason);
+      logInfo('submission_blocked', { ...logFields, status: 400, moderation_reason: moderationResult.reason });
       
       // Store rejected submission
       const rejectedRecord: SubmissionRecord = {
@@ -143,12 +166,14 @@ export async function handleContactSubmission(
 
     // 17. Return appropriate response
     if (notificationResult.finalStatus === 'ok') {
+      logInfo('submission_accepted', { ...logFields, status: 200 });
       return okResponse(corsOrigin);
     } else {
+      logInfo('submission_queued', { ...logFields, status: 202 });
       return queuedResponse(corsOrigin);
     }
   } catch (error) {
-    console.error('Error handling contact submission:', error);
+    logError('submission_error', { ...logFields, status: 500, error });
     return rejectedResponse(500, corsOrigin);
   }
 }

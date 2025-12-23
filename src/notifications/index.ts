@@ -1,6 +1,7 @@
 import type { ContactFormData, Env, NotificationResult } from '../types';
 import { createGitHubIssue } from './github';
 import { sendTelegramNotification } from './telegram';
+import { logWarn } from '../log';
 
 /**
  * Send notifications via available channels
@@ -20,8 +21,21 @@ export async function sendNotifications(
 
   // If GitHub fails, use Telegram as fallback
   if (!githubSuccess) {
-    console.log('GitHub notification failed, trying Telegram fallback');
+    logWarn('notification_failed', { 
+      channel: 'github', 
+      email: data.email, 
+      dedupe_hash: dedupeHash 
+    });
+    
     telegramSuccess = await sendTelegramNotification(data, env, dedupeHash);
+    
+    if (!telegramSuccess) {
+      logWarn('notification_failed', { 
+        channel: 'telegram', 
+        email: data.email, 
+        dedupe_hash: dedupeHash 
+      });
+    }
   }
 
   // Determine final status
