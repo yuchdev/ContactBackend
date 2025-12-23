@@ -19,16 +19,14 @@ describe('Contact API Integration', () => {
     };
   });
 
-  describe('Health Check', () => {
-    it('should return 200 for health check', async () => {
+  describe('Health Check Rejection', () => {
+    it('should reject health check with 405', async () => {
       const request = new Request('https://example.com/health', {
         method: 'GET',
       });
 
       const response = await worker.fetch(request, env);
-      expect(response.status).toBe(200);
-      const data = await response.json();
-      expect(data).toEqual({ status: 'ok' });
+      expect(response.status).toBe(405);
     });
   });
 
@@ -221,14 +219,14 @@ describe('Contact API Integration', () => {
     });
   });
 
-  describe('404 Handling', () => {
-    it('should return 404 for unknown routes', async () => {
+  describe('Method Rejection for unknown routes', () => {
+    it('should return 405 for unknown routes with GET', async () => {
       const request = new Request('https://example.com/unknown', {
         method: 'GET',
       });
 
       const response = await worker.fetch(request, env);
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(405);
     });
   });
 });

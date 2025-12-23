@@ -18,8 +18,12 @@ export default {
         let response: Response;
 
         try {
+            // Explicitly reject non-POST and non-OPTIONS requests
+            if (request.method !== 'POST' && request.method !== 'OPTIONS') {
+                response = rejectedResponse(405, corsOrigin);
+            }
             // Handle CORS preflight
-            if (request.method === 'OPTIONS') {
+            else if (request.method === 'OPTIONS') {
                 if (corsOrigin) {
                     response = handleCorsPreFlight(corsOrigin);
                 } else {
@@ -52,12 +56,6 @@ export default {
                 } else {
                     response = await handleContactSubmission(request, env, corsOrigin);
                 }
-            }
-            // Health check endpoint
-            else if (url.pathname === '/health' && request.method === 'GET') {
-                response = new Response(JSON.stringify({ status: 'ok' }), {
-                    headers: { 'Content-Type': 'application/json' },
-                });
             }
             // 404 for other routes
             else {
