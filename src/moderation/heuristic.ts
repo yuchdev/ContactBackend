@@ -1,7 +1,11 @@
 import type { ContactFormData, ModerationResult } from '../types';
 
 /**
- * Heuristic moderation - basic spam detection
+ * Performs heuristic-based moderation using basic spam detection rules.
+ * Rules include keyword matching, capitalization checks, and pattern analysis.
+ * 
+ * @param {ContactFormData} data - The submission data to moderate.
+ * @returns {Promise<ModerationResult>} The moderation result based on heuristics.
  */
 export async function moderateHeuristic(data: ContactFormData): Promise<ModerationResult> {
   const content = `${data.name} ${data.email || ''} ${data.message} ${data.subject || ''}`.toLowerCase();

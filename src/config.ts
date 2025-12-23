@@ -1,25 +1,41 @@
 import type { Env } from './types';
 
 /**
- * Configuration interface with parsed values
+ * Configuration interface containing the application's runtime settings.
  */
 export interface Config {
+  /** Secret key used for authenticating contact form submissions. */
   contactSecret: string;
+  /** List of origins allowed to make CORS requests. */
   allowedOrigins: string[];
+  /** GitHub personal access token for creating issues. */
   githubToken: string;
+  /** Owner of the GitHub repository where issues will be created. */
   githubOwner: string;
+  /** Name of the GitHub repository where issues will be created. */
   githubRepo: string;
+  /** Telegram Bot API token for sending notifications. */
   telegramBotToken?: string;
+  /** Telegram chat ID where notifications will be sent. */
   telegramChatId?: string;
+  /** Whether to use Cloudflare D1 for persistent storage. */
   useD1: boolean;
+  /** Time-to-live in seconds for deduplicating submissions. */
   dedupeTtlSeconds: number;
+  /** Maximum number of submissions allowed per minute per IP. */
   rateLimitPerMinute: number;
+  /** Maximum size of the request body in bytes. */
   maxBodyBytes: number;
+  /** Mode for content moderation ('heuristic', 'ai', or 'off'). */
   moderationMode: 'heuristic' | 'ai' | 'off';
 }
 
 /**
- * Parse and validate environment configuration
+ * Parses and validates environment variables into a structured configuration object.
+ * 
+ * @param {Env} env - The environment variables provided by Cloudflare Workers.
+ * @returns {Config} The parsed configuration object.
+ * @throws {Error} If mandatory fields are missing or validation fails.
  */
 export function parseConfig(env: Env): Config {
   // Validate mandatory fields

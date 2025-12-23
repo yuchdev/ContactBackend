@@ -4,9 +4,13 @@ import { sendTelegramNotification } from './telegram';
 import { logWarn } from '../log';
 
 /**
- * Send notifications via available channels
- * GitHub is primary, Telegram is the fallback
- * Returns notification result with status information
+ * Sends notifications across all configured channels.
+ * GitHub is the primary channel. If it fails, Telegram is used as a fallback.
+ * 
+ * @param {ContactFormData} data - The submission data to include in notifications.
+ * @param {Env} env - Environment variables and secrets.
+ * @param {string} dedupeHash - The deduplication hash for the submission.
+ * @returns {Promise<NotificationResult>} The result of the notification process.
  */
 export async function sendNotifications(
   data: ContactFormData,

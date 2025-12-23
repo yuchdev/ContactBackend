@@ -1,5 +1,9 @@
 /**
- * Check if origin is in CORS allowlist
+ * Checks if a given origin is present in the provided allowlist.
+ * 
+ * @param {string | null} origin - The origin to check.
+ * @param {string} allowlist - A comma-separated list of allowed origins.
+ * @returns {boolean} True if the origin is allowed.
  */
 export function isOriginAllowed(origin: string | null, allowlist: string): boolean {
   if (!origin) {
@@ -15,7 +19,11 @@ export function isOriginAllowed(origin: string | null, allowlist: string): boole
 }
 
 /**
- * Get allowed origin from request
+ * Retrieves the Origin header from the request and returns it if it's allowed.
+ * 
+ * @param {Request} request - The incoming HTTP request.
+ * @param {string} allowlist - A comma-separated list of allowed origins.
+ * @returns {string | undefined} The origin if allowed, otherwise undefined.
  */
 export function getAllowedOrigin(request: Request, allowlist: string): string | undefined {
   const origin = request.headers.get('Origin');

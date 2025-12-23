@@ -5,9 +5,17 @@ import { handleContactSubmission } from './handlers/contact';
 import { logInfo, logError } from './log';
 
 /**
- * Main Worker entry point
+ * Main Worker entry point.
+ * Handles incoming HTTP requests, performs routing, manages CORS, and logs request summaries.
  */
 export default {
+    /**
+     * Primary fetch handler for the Cloudflare Worker.
+     * 
+     * @param {Request} request - The incoming HTTP request.
+     * @param {Env} env - The environment variables and bindings.
+     * @returns {Promise<Response>} A promise that resolves to the HTTP response.
+     */
     async fetch(request: Request, env: Env): Promise<Response> {
         const url = new URL(request.url);
         const requestId = request.headers.get('cf-ray') || 'unknown';

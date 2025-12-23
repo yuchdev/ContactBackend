@@ -1,18 +1,38 @@
 
+/**
+ * Interface representing common fields included in log entries.
+ */
 export interface LogFields {
+  /** Unique ID for the request, typically from Cloudflare (cf-ray). */
   request_id?: string;
+  /** Request path (e.g., /api/contact). */
   path?: string;
+  /** HTTP method (e.g., POST, OPTIONS). */
   method?: string;
+  /** CORS origin of the request. */
   origin?: string;
+  /** Hash of the client's IP address for privacy. */
   ip_hash?: string;
+  /** Hash used for deduplicating submissions. */
   dedupe_hash?: string;
+  /** Outcome of the content moderation check. */
   moderation_verdict?: string;
+  /** HTTP response status code. */
   status?: number;
+  /** Custom rejection code for failed requests. */
   reject_code?: string;
+  /** Error object or information if an error occurred. */
   error?: any;
+  /** Additional custom fields for logging. */
   [key: string]: any;
 }
 
+/**
+ * Obfuscates an email address by replacing characters in the local part with asterisks.
+ * 
+ * @param {string | null} email - The email address to obfuscate.
+ * @returns {string | null} The obfuscated email address.
+ */
 function obfuscateEmail(email?: string | null): string | null {
   if (!email) return null;
   const [local, domain] = email.split('@');
@@ -21,6 +41,13 @@ function obfuscateEmail(email?: string | null): string | null {
   return `${local[0]}***${local[local.length - 1]}@${domain}`;
 }
 
+/**
+ * Formats a log entry as a JSON string, ensuring sensitive information is removed or obfuscated.
+ * 
+ * @param {string} event - The name of the event being logged.
+ * @param {LogFields} fields - The fields to include in the log entry.
+ * @returns {string} The formatted JSON string.
+ */
 function formatLog(event: string, fields: LogFields) {
   const { 
     request_id, path, method, origin, ip_hash, dedupe_hash, 
@@ -65,14 +92,32 @@ function formatLog(event: string, fields: LogFields) {
   }
 }
 
+/**
+ * Logs information level events.
+ * 
+ * @param {string} event - The name of the event.
+ * @param {LogFields} fields - The data to be logged.
+ */
 export function logInfo(event: string, fields: LogFields) {
   console.log(formatLog(event, fields));
 }
 
+/**
+ * Logs warning level events.
+ * 
+ * @param {string} event - The name of the event.
+ * @param {LogFields} fields - The data to be logged.
+ */
 export function logWarn(event: string, fields: LogFields) {
   console.warn(formatLog(event, fields));
 }
 
+/**
+ * Logs error level events, including error messages and stacks if available.
+ * 
+ * @param {string} event - The name of the event.
+ * @param {LogFields} fields - The data to be logged, potentially containing an error object.
+ */
 export function logError(event: string, fields: LogFields) {
   // If fields contains an error object, try to format it
   const logFields = { ...fields };

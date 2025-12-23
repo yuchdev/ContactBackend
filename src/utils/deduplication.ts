@@ -3,7 +3,11 @@ import { generateHash } from './hashing';
 import { createDedupeKey } from './validation';
 
 /**
- * Check if a submission is a duplicate
+ * Checks if a contact form submission is a duplicate using Cloudflare KV.
+ * 
+ * @param {ContactFormData} data - The submission data.
+ * @param {Env} env - Environment variables containing the KV binding.
+ * @returns {Promise<boolean>} True if the submission is a duplicate.
  */
 export async function isDuplicate(
   data: ContactFormData,

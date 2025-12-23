@@ -11,7 +11,15 @@ export { KVStorage } from './kv';
 export { MemoryStorage } from './memory';
 
 /**
- * Get the appropriate storage backend based on environment
+ * Selects and initializes the appropriate storage backend based on the environment configuration.
+ * 
+ * Priority:
+ * 1. Cloudflare D1 (if available and enabled via USE_D1)
+ * 2. Cloudflare KV (if available)
+ * 3. In-memory storage (fallback for local development/testing)
+ * 
+ * @param {Env} env - The environment variables and bindings.
+ * @returns {StorageBackend} An instance of the selected storage backend.
  */
 export function getStorageBackend(env: Env): StorageBackend {
   // Prefer D1 if available and USE_D1 is not explicitly false

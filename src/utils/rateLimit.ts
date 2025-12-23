@@ -1,15 +1,25 @@
 import type { Env, RateLimitInfo } from '../types';
 
 /**
- * Get client IP address from request
+ * Extracts the client's IP address from the request headers.
+ * Uses the CF-Connecting-IP header provided by Cloudflare.
+ * 
+ * @param {Request} request - The incoming HTTP request.
+ * @returns {string} The client's IP address or 'unknown'.
  */
 export function getClientIP(request: Request): string {
   return request.headers.get('CF-Connecting-IP') || 'unknown';
 }
 
 /**
- * Check rate limit for an IP address (legacy - now handled by storage)
- * This is kept for backward compatibility but not used in new implementation
+ * Checks the rate limit for a given IP address using Cloudflare KV.
+ * 
+ * @deprecated Rate limiting is now primarily handled through the StorageBackend.
+ * This function is maintained for backward compatibility.
+ * 
+ * @param {string} ip - The client's IP address.
+ * @param {Env} env - Environment variables containing the KV binding.
+ * @returns {Promise<RateLimitInfo>} The rate limit status.
  */
 export async function checkRateLimit(
   ip: string,

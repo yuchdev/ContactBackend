@@ -1,8 +1,12 @@
 import type { ContactFormData, Env } from '../types';
 
 /**
- * Send Telegram notification
- * Returns true if successful, false otherwise
+ * Sends a notification message to a Telegram chat.
+ * 
+ * @param {ContactFormData} data - The submission data.
+ * @param {Env} env - Environment variables containing Telegram bot token and chat ID.
+ * @param {string} [dedupeHash] - Optional deduplication hash for metadata.
+ * @returns {Promise<boolean>} True if the notification was sent successfully, false otherwise.
  */
 export async function sendTelegramNotification(
   data: ContactFormData,
@@ -75,7 +79,10 @@ ${dedupeHash ? `_Dedupe Hash: ${dedupeHash.substring(0, 16)}..._` : ''}
 }
 
 /**
- * Escape special characters for Telegram Markdown
+ * Escapes special characters in a string to ensure it is valid Telegram Markdown.
+ * 
+ * @param {string} text - The text to escape.
+ * @returns {string} The escaped text.
  */
 function escapeMarkdown(text: string): string {
   // First escape backslashes, then escape other special characters

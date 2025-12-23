@@ -1,16 +1,13 @@
 import type { ContactFormData, ModerationResult } from '../types';
 
 /**
- * AI moderation stub - placeholder for future AI provider integration
+ * A stub for AI-based content moderation.
+ * This function currently serves as a placeholder for future integration with AI moderation services.
  * 
- * TODO: Implement AI moderation using provider like:
- * - OpenAI Moderation API
- * - Perspective API
- * - Custom trained model
+ * @param {ContactFormData} data - The submission data to moderate.
+ * @returns {Promise<ModerationResult>} A promise resolving to 'ALLOW' with a notice that AI moderation is not configured.
  * 
- * Required environment variables for AI moderation:
- * - AI_PROVIDER_KEY: API key for the AI provider
- * - AI_PROVIDER_URL: Optional custom endpoint URL
+ * @todo Implement AI moderation using a service like OpenAI Moderation API or Perspective API.
  */
 export async function moderateAI(data: ContactFormData): Promise<ModerationResult> {
   void data;

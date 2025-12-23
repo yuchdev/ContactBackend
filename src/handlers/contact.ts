@@ -9,7 +9,14 @@ import { getStorageBackend } from '../storage';
 import { logInfo, logError } from '../log';
 
 /**
- * Handle contact form submission
+ * Handles the contact form submission process.
+ * This includes validation, rate limiting, deduplication, moderation,
+ * sending notifications, and persisting the submission record.
+ * 
+ * @param {Request} request - The incoming HTTP request.
+ * @param {Env} env - Environment variables and bindings.
+ * @param {string} [corsOrigin] - The allowed CORS origin for the response.
+ * @returns {Promise<Response>} A promise that resolves to the HTTP response.
  */
 export async function handleContactSubmission(
   request: Request,

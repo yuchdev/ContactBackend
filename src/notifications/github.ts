@@ -1,8 +1,11 @@
 import type { ContactFormData, Env } from '../types';
 
 /**
- * Create a GitHub issue for the contact form submission
- * Returns the issue URL if successful, null otherwise
+ * Creates a new GitHub issue based on the contact form submission data.
+ * 
+ * @param {ContactFormData} data - The submission data.
+ * @param {Env} env - Environment variables containing GitHub credentials and repository info.
+ * @returns {Promise<string | null>} The HTML URL of the created issue, or null if creation failed.
  */
 export async function createGitHubIssue(
   data: ContactFormData,
@@ -78,7 +81,10 @@ ${data.message}
 }
 
 /**
- * Obfuscate email for display (e.g., j***@domain.com)
+ * Simple email obfuscation for privacy in GitHub issues.
+ * 
+ * @param {string} email - The email address to obfuscate.
+ * @returns {string} The obfuscated email address.
  */
 function obfuscateEmail(email: string): string {
   const [local, domain] = email.split('@');

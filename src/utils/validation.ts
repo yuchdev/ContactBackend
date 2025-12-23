@@ -2,7 +2,11 @@ import type { ContactFormData } from '../types';
 import { generateHash } from './hashing';
 
 /**
- * Validate contact form data structure and required fields
+ * Validates the structure and content of contact form data.
+ * Checks for required fields and applies length and format constraints.
+ * 
+ * @param {unknown} data - The raw data to validate.
+ * @returns {boolean} True if the data is a valid ContactFormData object.
  */
 export function validateContactForm(data: unknown): data is ContactFormData {
   if (typeof data !== 'object' || data === null) {
@@ -58,7 +62,10 @@ export function validateContactForm(data: unknown): data is ContactFormData {
 }
 
 /**
- * Basic email validation
+ * Performs a basic regex-based email validation.
+ * 
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} True if the email format is valid.
  */
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,22 +73,33 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
- * Check honeypot field (should be empty to pass)
+ * Checks the honeypot field in the contact form data.
+ * Bots often fill this hidden field, so it must be empty for a submission to be considered valid.
+ * 
+ * @param {ContactFormData} data - The contact form data.
+ * @returns {boolean} True if the honeypot field is empty.
  */
 export function checkHoneypot(data: ContactFormData): boolean {
   return !data.website || data.website.trim() === '';
 }
 
 /**
- * Validate shared secret
+ * Validates the provided secret against the expected contact secret.
+ * 
+ * @param {string} provided - The secret provided in the request.
+ * @param {string} expected - The expected secret from the environment.
+ * @returns {boolean} True if the secrets match.
  */
 export function validateSecret(provided: string, expected: string): boolean {
   return provided === expected;
 }
 
 /**
- * Create deduplication key from contact form data
- * Normalized to handle whitespace and case variations
+ * Creates a normalized deduplication key from the contact form data.
+ * The key is used to generate a hash for identifying duplicate submissions within a 24-hour window.
+ * 
+ * @param {ContactFormData} data - The contact form data.
+ * @returns {string} The normalized deduplication key.
  */
 export function createDedupeKey(data: ContactFormData): string {
   // Normalize: trim, lowercase, collapse whitespace
@@ -96,7 +114,11 @@ export function createDedupeKey(data: ContactFormData): string {
 }
 
 /**
- * Hash IP address with salt for privacy
+ * Hashes an IP address with a salt for privacy.
+ * 
+ * @param {string} ip - The client's IP address.
+ * @param {string} salt - A salt value (e.g., the contact secret).
+ * @returns {Promise<string>} The hashed IP address.
  */
 export async function hashIP(ip: string, salt: string): Promise<string> {
   const data = `${ip}:${salt}`;
