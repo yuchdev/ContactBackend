@@ -36,8 +36,7 @@ export async function handleContactSubmission(
     // Parse configuration
     const config = parseConfig(env);
 
-    // 1. Check method is POST (already handled by router)
-    
+    // 1. Check method is POST (already handled by router)    
     // 2. Check Content-Type
     const contentType = request.headers.get('Content-Type');
     if (!contentType || !contentType.includes('application/json')) {
