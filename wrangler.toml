@@ -4,13 +4,13 @@ compatibility_date = "2025-12-22"
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
-id = "ff5439c851a144658f0c638eacaa8419"
+id = "<your-kv-namespace-id>"
 
 # D1 database for persistence
 [[d1_databases]]
 binding = "DB"
 database_name = "contact_backend"
-database_id = "cb6d52a2-8fd8-4bef-b999-e9e12233f58e"
+database_id = "<your-d1-database-id>"
 
 [observability]
 enabled = false
@@ -27,19 +27,15 @@ enabled = false
 persist = true
 head_sampling_rate = 1
 
+# Public template with placeholder IDs. Copy to wrangler.local.toml (gitignored)
+# and fill in real IDs plus ALLOWED_ORIGINS, GITHUB_OWNER, GITHUB_REPO and
+# TELEGRAM_CHAT_ID under [vars]. npm scripts use wrangler.local.toml.
 [vars]
-ALLOWED_ORIGINS = "https://yuchdev.github.io"
 USE_D1 = "true"
 DEDUPE_TTL_SECONDS = "86400"
 MAX_BODY_BYTES = "8192"
-GITHUB_OWNER = "yuchdev"
-GITHUB_REPO = "ContactBackend"
-TELEGRAM_CHAT_ID = "7796749"
 RATE_LIMIT_PER_MINUTE = "10"
 MODERATION_MODE = "heuristic"
 
 [env.dev]
 name = "contact-backend-dev"
-
-[env.dev.vars]
-ALLOWED_ORIGINS = "https://yuchdev.github.io,http://localhost:3000,http://127.0.0.1:3000"

@@ -1,0 +1,16 @@
+# Copy to .dev.vars (gitignored) for local development.
+# In deployed environments set secrets with: wrangler secret put <NAME>
+# (CONTACT_SECRET, GITHUB_TOKEN, TELEGRAM_BOT_TOKEN). The personal vars
+# (ALLOWED_ORIGINS, GITHUB_OWNER, GITHUB_REPO, TELEGRAM_CHAT_ID) live in
+# wrangler.local.toml.
+
+# Required
+CONTACT_SECRET=your-secure-random-secret
+GITHUB_TOKEN=ghp_your_github_token
+GITHUB_OWNER=your-github-username
+GITHUB_REPO=your-repo-name
+ALLOWED_ORIGINS=https://your-site.example.com,http://localhost:3000
+
+# Optional (Telegram fallback)
+TELEGRAM_BOT_TOKEN=your-bot-token
+TELEGRAM_CHAT_ID=your-chat-id

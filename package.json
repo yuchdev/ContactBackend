@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Cloudflare Worker backend for contact form: security checks, moderation hook, GitHub Issues + Telegram fallback.",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "dev": "wrangler dev -c wrangler.local.toml",
+    "deploy": "wrangler deploy -c wrangler.local.toml",
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
@@ -14,8 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run -c vitest.integration.config.ts",
-    "db:migrate:local": "wrangler d1 migrations apply contact_backend --local",
-    "db:migrate:remote": "wrangler d1 migrations apply contact_backend"
+    "db:migrate:local": "wrangler d1 migrations apply contact_backend --local -c wrangler.local.toml",
+    "db:migrate:remote": "wrangler d1 migrations apply contact_backend -c wrangler.local.toml"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.11.1",

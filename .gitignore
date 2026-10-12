@@ -9,3 +9,7 @@ yarn-error.log*
 .pnp.js
 
 .vscode/*
+# Local secrets/config
+.dev.vars
+.env
+wrangler.local.toml
